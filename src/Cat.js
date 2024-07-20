@@ -8,28 +8,33 @@ export default class Cat extends Phaser.Physics.Arcade.Sprite {
 
         this.setBounce(0.2);
         this.setCollideWorldBounds(true);
-        this.health = 60;
+        this.maxHealth = 60;
+        this.health = this.maxHealth;
+        this.lives = 9;
         this.jumpForce = -600;
         this.moveSpeed = 200;
     }
 
     move(direction) {
-        this.setVelocityX(direction * this.moveSpeed);
-        if (direction < 0) {
-            this.setFlipX(true);
-        } else if (direction > 0) {
-            this.setFlipX(false);
+        if (this.body) {
+            this.body.setVelocityX(direction * this.moveSpeed);
         }
     }
 
     jump() {
-        if (this.body.touching.down || this.body.blocked.down) {
-            this.setVelocityY(this.jumpForce);
+        if (this.body && (this.body.touching.down || this.body.blocked.down)) {
+            this.body.setVelocityY(this.jumpForce);
         }
     }
 
-    update() {
-        // This method can be used for any per-frame updates specific to Cat
-        // Currently empty as we're not using animations
+    takeDamage(amount) {
+        this.health = Math.max(0, this.health - amount);
+        if (this.health <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        console.log('Cat died!');
     }
 }
