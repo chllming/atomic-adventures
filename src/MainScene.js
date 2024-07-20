@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import Atomo from './atomo';
-import Cat from './cat';
+import Atomo from './Atomo';
+import Cat from './Cat';
 
 export default class MainScene extends Phaser.Scene {
     constructor() {
@@ -8,10 +8,12 @@ export default class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('atomo', 'assets/atomo_placeholder.png');
-        this.load.image('cat', 'assets/cat_placeholder.png');
         this.load.image('platform', 'assets/platform.png');
         this.load.image('background', 'assets/background_tile.png');
+        
+        // Load placeholder images instead of sprite sheets
+        this.load.image('atomo', 'assets/atomo_placeholder.png');
+        this.load.image('cat', 'assets/cat_placeholder.png');
     }
 
     create() {
@@ -29,7 +31,7 @@ export default class MainScene extends Phaser.Scene {
         this.createPlatforms();
 
         this.atomo = new Atomo(this, 100, 450);
-        this.cat = new Cat(this, 300, 450);
+        this.cat = new Cat(this, 250, 450);
 
         this.physics.add.collider(this.atomo, this.platforms);
         this.physics.add.collider(this.cat, this.platforms);
@@ -41,9 +43,6 @@ export default class MainScene extends Phaser.Scene {
         this.activeCharacter = this.atomo;
         this.cat.setVisible(false);
 
-        this.debugText = this.add.text(16, 16, '', { fontSize: '18px', fill: '#fff' });
-        this.debugText.setScrollFactor(0);
-
         this.cameras.main.setBounds(0, 0, this.cameras.main.width * 10, this.cameras.main.height);
         this.cameras.main.startFollow(this.activeCharacter, true, 0.05, 0.05);
 
@@ -53,25 +52,28 @@ export default class MainScene extends Phaser.Scene {
                 .setScrollFactor(1)
                 .setOrigin(0.5);
         }
+
+        this.debugText = this.add.text(16, 16, '', { fontSize: '18px', fill: '#fff' });
+        this.debugText.setScrollFactor(0);
     }
 
     createPlatforms() {
         var screenWidth = this.cameras.main.width;
         var screenHeight = this.cameras.main.height;
-    
+
         // Add just one starting platform
         this.platforms.create(300, 550, 'platform').setScale(1.5).refreshBody();
-    
+
         for (var i = 0; i < 10; i++) {
             var screenStartX = i * screenWidth;
             // Randomize platform count within a range
             var platformCount = Phaser.Math.Between(2, 4);
             var maxScale = Math.max(0.8, 1.3 - (i * 0.05));
             var minScale = Math.max(0.5, 0.7 - (i * 0.02));
-    
+
             var lastX = screenStartX;
             var lastY = screenHeight / 2; // Start from middle height
-    
+
             for (var j = 0; j < platformCount; j++) {
                 var x, y, scale, tooClose;
                 var attempts = 0;
@@ -84,21 +86,21 @@ export default class MainScene extends Phaser.Scene {
                     
                     // Randomize vertical position more
                     y = Phaser.Math.Between(screenHeight * 0.1, screenHeight * 0.9);
-    
+
                     // Ensure some vertical distance from the last platform, but allow for more variance
                     y = Phaser.Math.Clamp(y, lastY - 300, lastY + 300);
                     
                     // Randomize scale more
                     scale = Phaser.Math.FloatBetween(minScale * 0.8, maxScale * 1.2);
-    
+
                     // Check if the new platform is too close to existing ones
                     tooClose = this.platforms.getChildren().some(function(platform) {
                         return Phaser.Math.Distance.Between(x, y, platform.x, platform.y) < 200;
                     });
-    
+
                     attempts++;
                 } while (tooClose && attempts < 10);
-    
+
                 if (!tooClose) {
                     this.platforms.create(x, y, 'platform')
                         .setScale(scale)
@@ -107,7 +109,7 @@ export default class MainScene extends Phaser.Scene {
                     lastY = y;
                 }
             }
-    
+
             // Randomly add an extra platform with 30% chance
             if (Phaser.Math.FloatBetween(0, 1) < 0.3) {
                 var extraX = Phaser.Math.Between(screenStartX, screenStartX + screenWidth - 100);
@@ -117,7 +119,7 @@ export default class MainScene extends Phaser.Scene {
                     .setScale(extraScale)
                     .refreshBody();
             }
-    
+
             // Randomly add a very high or very low platform with 20% chance
             if (Phaser.Math.FloatBetween(0, 1) < 0.2) {
                 var extremeY = (Phaser.Math.FloatBetween(0, 1) < 0.5) ? 
@@ -129,7 +131,7 @@ export default class MainScene extends Phaser.Scene {
                     .refreshBody();
             }
         }
-    
+
         // Add a few strategic platforms for long jumps with random placement
         for (var i = 3; i < 10; i += Phaser.Math.Between(2, 3)) {
             var x = (i + Phaser.Math.FloatBetween(0.3, 0.7)) * screenWidth;
@@ -147,13 +149,14 @@ export default class MainScene extends Phaser.Scene {
 
         this.background.tilePositionX = this.cameras.main.scrollX;
 
+        this.atomo.update();
+        this.cat.update();
+
         this.debugText.setText(
             `Active: ${this.activeCharacter === this.atomo ? 'Atomo' : 'Cat'}\n` +
             `X: ${Math.round(this.activeCharacter.x)}, Y: ${Math.round(this.activeCharacter.y)}\n` +
             `Touching Down: ${this.activeCharacter.body.touching.down}\n` +
-            `Blocked Down: ${this.activeCharacter.body.blocked.down}\n` +
-            `Velocity Y: ${Math.round(this.activeCharacter.body.velocity.y)}\n` +
-            `Jump Key: ${this.jumpKey.isDown}`
+            `Velocity X: ${Math.round(this.activeCharacter.body.velocity.x)}, Y: ${Math.round(this.activeCharacter.body.velocity.y)}`
         );
     }
 
@@ -168,7 +171,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     handleJump() {
-        if (this.jumpKey.isDown) {
+        if (Phaser.Input.Keyboard.JustDown(this.jumpKey)) {
             this.activeCharacter.jump();
         }
     }

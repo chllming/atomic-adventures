@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "**/*.js": "javascript"
+    },
+    "typescript.preferences.importModuleSpecifierEnding": "js"
+}
+{
+    "cSpell.words": [
+      "Atomo",
+      "ElectronBandit"
+      "Cat"
+    ]
+  }

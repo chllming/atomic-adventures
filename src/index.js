@@ -1,11 +1,14 @@
+// index.js or game.js
+
 import Phaser from 'phaser';
 import MainScene from './MainScene';
+import GameOverScene from './GameOverScene';
 
 const config = {
     type: Phaser.AUTO,
     width: 1024,
     height: 768,
-    parent: 'game-container',  // This tells Phaser to use our game-container div
+    parent: 'game-container',
     physics: {
         default: 'arcade',
         arcade: {
@@ -13,7 +16,7 @@ const config = {
             debug: false
         }
     },
-    scene: [MainScene]
+    scene: [MainScene, GameOverScene]
 };
 
 const game = new Phaser.Game(config);

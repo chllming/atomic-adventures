@@ -15,6 +15,11 @@ export default class Atomo extends Phaser.Physics.Arcade.Sprite {
 
     move(direction) {
         this.setVelocityX(direction * this.moveSpeed);
+        if (direction < 0) {
+            this.setFlipX(true);
+        } else if (direction > 0) {
+            this.setFlipX(false);
+        }
     }
 
     jump() {
@@ -23,5 +28,8 @@ export default class Atomo extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    // Add Atomo-specific attacks here
+    update() {
+        // This method can be used for any per-frame updates specific to Atomo
+        // Currently empty as we're not using animations
+    }
 }

@@ -9,12 +9,17 @@ export default class Cat extends Phaser.Physics.Arcade.Sprite {
         this.setBounce(0.2);
         this.setCollideWorldBounds(true);
         this.health = 60;
-        this.jumpForce = -600; // Higher jump for Cat
-        this.moveSpeed = 200; // Faster movement for Cat
+        this.jumpForce = -600;
+        this.moveSpeed = 200;
     }
 
     move(direction) {
         this.setVelocityX(direction * this.moveSpeed);
+        if (direction < 0) {
+            this.setFlipX(true);
+        } else if (direction > 0) {
+            this.setFlipX(false);
+        }
     }
 
     jump() {
@@ -23,5 +28,8 @@ export default class Cat extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    // Add Cat-specific attacks here
+    update() {
+        // This method can be used for any per-frame updates specific to Cat
+        // Currently empty as we're not using animations
+    }
 }
